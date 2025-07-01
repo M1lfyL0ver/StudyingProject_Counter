@@ -1,36 +1,32 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
-using TMPro;
-using UnityEditor.Timeline.Actions;
 
+[RequireComponent(typeof(TextUpdater))]
 public class Counter : MonoBehaviour
 {
     private const float IntervalInSeconds = 0.5f;
 
-    [SerializeField] private InputActionReference clickAction;
+    [SerializeField] private InputActionReference _clickAction;
+    [SerializeField] private TextUpdater _textUpdater;
 
-    private TextMeshProUGUI counterText; 
-    private int countAmount = 0;
-    private bool isCounting = false;
-    private Coroutine countingCoroutine;
+    private bool _isCounting = false;
+    private Coroutine _countingCoroutine;
 
     private void Awake()
     {
-        counterText = GetComponent<TextMeshProUGUI>(); 
         InitializeInputSystem();
-        UpdateCounterText(); 
     }
 
     private void InitializeInputSystem()
     {
-        clickAction.action.performed += ToggleCounting;
-        clickAction.action.Enable();
+        _clickAction.action.performed += ToggleCounting;
+        _clickAction.action.Enable();
     }
 
     private void ToggleCounting(InputAction.CallbackContext context)
     {
-        if (isCounting)
+        if (_isCounting)
         {
             StopCounting();
         }
@@ -42,32 +38,27 @@ public class Counter : MonoBehaviour
 
     private void StartCounting()
     {
-        isCounting = true;
-        countingCoroutine = StartCoroutine(CountEveryHalfSecond());
+        _isCounting = true;
+        _countingCoroutine = StartCoroutine(CountEveryHalfSecond());
     }
 
     private void StopCounting()
     {
-        if (countingCoroutine != null)
+        if (_countingCoroutine != null)
         {
-            StopCoroutine(countingCoroutine);
+            StopCoroutine(_countingCoroutine);
         }
 
-        isCounting = false;
+        _isCounting = false;
     }
 
     private IEnumerator CountEveryHalfSecond()
     {
-        while (true)
+        WaitForSeconds waitForSeconds = new WaitForSeconds(IntervalInSeconds);
+        while (_isCounting)
         {
-            yield return new WaitForSeconds(IntervalInSeconds);
-            countAmount++;
-            UpdateCounterText();
+            yield return waitForSeconds;
+            _textUpdater.AddCount();
         }
-    }
-
-    private void UpdateCounterText()
-    {
-        counterText.text = $"—четчик: {countAmount}";
     }
 }
