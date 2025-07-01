@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 
-[RequireComponent(typeof(TextUpdater))]
 public class Counter : MonoBehaviour
 {
     private const float IntervalInSeconds = 0.5f;
@@ -22,6 +21,13 @@ public class Counter : MonoBehaviour
     {
         _clickAction.action.performed += ToggleCounting;
         _clickAction.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        _clickAction.action.performed -= ToggleCounting;
+        _clickAction.action.Disable();
+        StopCounting();
     }
 
     private void ToggleCounting(InputAction.CallbackContext context)
@@ -55,6 +61,7 @@ public class Counter : MonoBehaviour
     private IEnumerator CountEveryHalfSecond()
     {
         WaitForSeconds waitForSeconds = new WaitForSeconds(IntervalInSeconds);
+
         while (_isCounting)
         {
             yield return waitForSeconds;
